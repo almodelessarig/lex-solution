@@ -713,8 +713,22 @@
         }
 
         @media (max-width: 960px) {
-            .hero-title { font-size: 28px; }
-            .hero-subtitle { font-size: 16px; }
+            .hero-title {
+                font-size: 26px;
+                line-height: 1.25;
+                text-align: center;
+                word-wrap: break-word;
+                hyphens: none;
+            }
+            .hero-title br { display: none; }
+            .hero-subtitle {
+                font-size: 15px;
+                line-height: 1.5;
+                text-align: center;
+                padding: 0 10px;
+            }
+            .hero-subtitle br { display: none; }
+            .hero { padding: 40px 0 30px; }
             .benefits-list {
                 flex-direction: column;
                 gap: 16px;
@@ -722,7 +736,15 @@
                 align-items: flex-start;
             }
             .benefit-item { font-size: 14px; }
+            .selection-title {
+                font-size: 16px;
+                padding: 0 10px;
+            }
             .cards-grid { grid-template-columns: 1fr; }
+            .card-select h3 {
+                font-size: 18px;
+            }
+            .card-select h3 br { display: none; }
             .features-grid { grid-template-columns: 1fr; }
             .case-card { flex-direction: column; }
             .form-grid { grid-template-columns: 1fr; }
