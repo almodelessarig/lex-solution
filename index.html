@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexSolution — Оспаривание страховых выплат после ДТП</title>
+    <meta name="description" content="Помощь при ДТП и спорах со страховыми в Казахстане. Увеличиваем выплаты, оспариваем отказы. Оплата за результат.">
+    
+    <!-- Google Fonts: Manrope -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ═════════════════════════════════════════════════════════════════════
+           VARIABLES & RESET
+        ══════════════════════════════════════════════════════════════════════ */
+        :root {
+            /* Palette */
+            --primary: #0f172a;       /* Deep Navy */
+            --primary-light: #1e293b; /* Slate */
+            --accent: #0891b2;        /* Teal */
+            --accent-glow: #22d3ee;   /* Cyan */
+            --action: #f97316;        /* Orange */
+            --action-hover: #ea580c;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-sec: #475569;
+            --border: #e2e8f0;
+
+            /* Spacing & UI */
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --container: 1120px;
+            --header-h: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Mesh Gradient Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(at 0% 0%, rgba(8, 145, 178, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(249, 115, 22, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.05) 0px, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           UTILITIES
+        ══════════════════════════════════════════════════════════════════════ */
+        .container {
+            max-width: var(--container);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-4 { gap: 16px; }
+        .gap-8 { gap: 32px; }
+
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .text-accent { color: var(--accent); }
+        .text-action { color: var(--action); }
+        .text-danger { color: var(--danger); }
+        .text-success { color: var(--success); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: var(--action);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--action-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            gap: 8px;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           HEADER
+        ══════════════════════════════════════════════════════════════════════ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--header-h);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo span { color: var(--accent); }
+
+        .header-contacts {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .phone-link {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-decoration: none;
+            color: var(--primary);
+        }
+        .phone-number {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .phone-badge {
+            font-size: 11px;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           HERO SECTION (STATE 1)
+        ══════════════════════════════════════════════════════════════════════ */
+        .hero {
+            padding: 60px 0 40px;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        .hero-title .highlight {
+            color: var(--accent);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-sec);
+            font-weight: 500;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        .hero-subtitle strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Benefits List */
+        .benefits-list {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+            padding: 24px 32px;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-card);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .benefit-check {
+            color: var(--success);
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           SELECTION CARDS
+        ══════════════════════════════════════════════════════════════════════ */
+        .selection-title {
+            text-align: center;
+            margin-bottom: 24px;
+            font-weight: 600;
+            color: var(--text-sec);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card-select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+
+        .card-select:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .card-select h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .card-select p {
+            color: var(--text-sec);
+            font-size: 15px;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Selected State */
+        .card-select.selected {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 10px 25px -5px rgba(8, 145, 178, 0.5);
+        }
+        .card-select.selected p,
+        .card-select.selected .card-btn {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .card-select.selected .card-btn::after {
+            content: "✓";
+            margin-left: 4px;
+        }
+
+        /* Social Proof Strip */
+        .social-proof {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+            padding: 20px;
+            background: white;
+            border-radius: 100px;
+            box-shadow: var(--shadow-sm);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .proof-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .check {
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        /* Emergency Block (State 1 Only) */
+        .emergency-block {
+            text-align: center;
+            margin-bottom: 100px; /* Spacer to end page */
+        }
+        .emergency-phone {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            display: block;
+            margin-top: 8px;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           STATE 2: CONTENT REVEAL
+        ══════════════════════════════════════════════════════════════════════ */
+        #dynamic-content {
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        #dynamic-content.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Urgent Alert (Segment A) */
+        .urgent-alert {
+            background: #fff7ed;
+            border-top: 4px solid var(--action);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            margin-bottom: 60px;
+            box-shadow: var(--shadow-card);
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+
+        .checklist {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        .check-box {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-sec);
+            border-radius: 6px;
+        }
+
+        /* Big Stat (Segment B/C) */
+        .big-stat-card {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 60px;
+            border: 1px solid var(--border);
+        }
+        .stat-val {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        /* Features/Problems Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .feature-card {
+            background: white;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+        .f-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+        .feature-card h4 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: var(--text-sec); }
+
+        /* Case Studies */
+        .case-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 32px;
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        .case-info { flex: 1; }
+        .case-viz { 
+            flex: 1; 
+            background: var(--bg); 
+            padding: 20px; 
+            border-radius: var(--radius-md); 
+        }
+        .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+        .bar { height: 40px; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; font-weight: 700; font-size: 14px; color: white;}
+        .bar-bad { width: 50%; background: var(--danger); }
+        .bar-good { width: 90%; background: var(--success); }
+
+        /* Pricing */
+        .pricing-section {
+            margin: 80px 0;
+        }
+        .pricing-card {
+            background: var(--surface);
+            padding: 32px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .pricing-val { font-size: 24px; font-weight: 800; color: var(--primary); margin: 8px 0; }
+        .guarantee-box {
+            border: 2px solid var(--success);
+            background: #f0fdf4;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            margin-top: 32px;
+            text-align: center;
+        }
+
+        /* Lead Form */
+        .lead-form-section {
+            background: var(--primary);
+            color: white;
+            padding: 60px 0;
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 80px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            position: relative;
+            z-index: 2;
+        }
+        .form-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #94a3b8;
+        }
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .radio-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .radio-btn {
+            padding: 10px 16px;
+            background: #1e293b;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #334155;
+        }
+        .radio-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Final CTA */
+        .footer-sticky {
+            display: none; /* Visible on mobile via media query */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            padding: 16px;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            z-index: 99;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .mobile-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════════
+           MEDIA QUERIES
+        ══════════════════════════════════════════════════════════════════════ */
+        /* ═════════════════════════════════════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════════════════════════════════════ */
+        .footer {
+            background: var(--primary);
+            color: #94a3b8;
+            padding: 60px 0 0;
+            margin-top: 0;
+        }
+        .footer-main {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 40px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #334155;
+        }
+        .footer-brand .logo {
+            margin-bottom: 12px;
+        }
+        .footer-tagline {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .footer-socials {
+            display: flex;
+            gap: 12px;
+        }
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #1e293b;
+            color: #94a3b8;
+            transition: all 0.2s ease;
+        }
+        .social-link:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .footer h4 {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #94a3b8;
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: color 0.2s ease;
+        }
+        a.footer-contact-item:hover {
+            color: var(--accent);
+        }
+        .footer-cta p {
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+            font-size: 13px;
+        }
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        .footer-company-info {
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .footer-company-info p {
+            margin-bottom: 4px;
+        }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 40px;
+        }
+        .footer-bottom-left {
+            flex-shrink: 0;
+        }
+        .footer-privacy-link {
+            display: block;
+            margin-top: 8px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s ease;
+        }
+        .footer-privacy-link:hover {
+            color: var(--accent-glow);
+        }
+        .footer-disclaimer {
+            max-width: 500px;
+            text-align: right;
+        }
+        .footer-disclaimer p {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #64748b;
+        }
+
+        @media (max-width: 960px) {
+            .hero-title { font-size: 28px; }
+            .hero-subtitle { font-size: 16px; }
+            .benefits-list {
+                flex-direction: column;
+                gap: 16px;
+                padding: 20px 24px;
+                align-items: flex-start;
+            }
+            .benefit-item { font-size: 14px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .case-card { flex-direction: column; }
+            .form-grid { grid-template-columns: 1fr; }
+            .social-proof { display: grid; grid-template-columns: 1fr 1fr; border-radius: 16px; }
+            
+            .header-contacts .phone-text { display: none; }
+            .header-contacts .phone-link::after { content: '📞'; font-size: 24px; }
+            
+            .footer-sticky { display: flex; }
+            .emergency-block { margin-bottom: 20px; } /* Less space on mobile */
+
+            /* Footer Mobile */
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                text-align: center;
+            }
+            .footer-brand {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .footer-socials {
+                justify-content: center;
+            }
+            .footer-contact-item {
+                justify-content: center;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+                padding-bottom: 100px;
+            }
+            .footer-bottom-left {
+                text-align: center;
+            }
+            .footer-disclaimer {
+                max-width: 100%;
+                text-align: center;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .footer-company-info {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-mesh"></div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container flex justify-between items-center" style="height: 100%;">
+            <div class="logo">Lex<span>Solution</span></div>
+            <div class="header-contacts">
+                <a href="tel:+77002676097" class="phone-link">
+                    <span class="phone-text">
+                        <span class="phone-number">+7 700 267 60 97</span>
+                        <span class="phone-badge">24/7</span>
+                    </span>
+                </a>
+                <a href="https://wa.me/77002676097" class="btn btn-whatsapp" target="_blank">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.304-5.235c0-5.443 4.429-9.861 9.856-9.861 2.628 0 5.105 1.025 6.965 2.885 1.86 1.86 2.883 4.341 2.883 6.975 0 5.445-4.426 9.868-9.851 9.868"></path></svg>
+                    WhatsApp
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATE 1: THE GATE -->
+    <section class="hero container">
+
+        <div class="text-center">
+            <h1 class="hero-title">
+                Отремонтируйте машину без доплаты из кармана<br>
+                <span class="highlight">за счёт справедливой выплаты</span> от страховой
+            </h1>
+            <p class="hero-subtitle">Добьёмся, чтобы страховая заплатила реальную стоимость ремонта.<br>В среднем наши клиенты получают на <strong>300 000 – 1 500 000 ₸</strong> больше.</p>
+        </div>
+
+        <div class="benefits-list">
+            <div class="benefit-item">
+                <span class="benefit-check">✓</span>
+                <span>Бывшие сотрудники страховых — знаем все схемы занижения</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-check">✓</span>
+                <span>340+ дел, 94% в пользу клиента</span>
+            </div>
+            <div class="benefit-item">
+                <span class="benefit-check">✓</span>
+                <span>Гарантия: не взыскали — вернём предоплату</span>
+            </div>
+        </div>
+
+        <!-- SELECTION CARDS -->
+        <h2 class="selection-title">Выберите вашу ситуацию:</h2>
+        <div class="cards-grid">
+            <div class="card-select" onclick="selectSituation('A', this)">
+                <div class="card-icon">🚗</div>
+                <h3>Только что<br>попал в ДТП</h3>
+                <p>Стою на месте или оформляюсь. Боюсь сделать ошибку.</p>
+                <div class="card-btn">Выбрать</div>
+            </div>
+            <div class="card-select" onclick="selectSituation('B', this)">
+                <div class="card-icon">📄</div>
+                <h3>Страховая уже<br>посчитала</h3>
+                <p>Сумма пришла, но ее не хватает на нормальный ремонт.</p>
+                <div class="card-btn">Выбрать</div>
+            </div>
+            <div class="card-select" onclick="selectSituation('C', this)">
+                <div class="card-icon">❌</div>
+                <h3>Страховая<br>отказала</h3>
+                <p>Пришел отказ в выплате. Ищу способ оспорить.</p>
+                <div class="card-btn">Выбрать</div>
+            </div>
+        </div>
+
+        <!-- SOCIAL PROOF -->
+        <div class="social-proof">
+            <div class="proof-item"><span class="check">✓</span> 340+ побед</div>
+            <div class="proof-item"><span class="check">✓</span> 94% успеха</div>
+            <div class="proof-item"><span class="check">✓</span> Гарантия возврата</div>
+            <div class="proof-item"><span class="check">✓</span> Работаем по РК</div>
+        </div>
+
+        <!-- EMERGENCY (State 1 Only) -->
+        <div id="state-1-extras" class="emergency-block">
+            <p style="color: var(--text-sec);">Нужна помощь прямо сейчас?</p>
+            <a href="tel:+77002676097" class="emergency-phone">+7 700 267 60 97</a>
+            <p style="font-size: 14px; margin-top: 4px;">Работаем 24/7</p>
+        </div>
+
+    </section>
+
+    <!-- STATE 2: DYNAMIC CONTENT -->
+    <section id="dynamic-content" class="container">
+        
+        <!-- Content for Segment A: Just Crashed -->
+        <div id="content-A" class="segment-content" style="display: none;">
+            <div class="urgent-alert">
+                <h2 style="color: var(--action); margin-bottom: 16px;">⚠️ ВЫ СЕЙЧАС НА МЕСТЕ ДТП?</h2>
+                <p><strong>Не дайте страховой занизить выплату с самого начала.</strong><br>
+                Одна ошибка в европротоколе или объяснительной может стоить вам сотни тысяч тенге.</p>
+                
+                <div class="checklist">
+                    <div class="check-item"><div class="check-box"></div> Сфотографируйте повреждения издалека и вблизи</div>
+                    <div class="check-item"><div class="check-box"></div> Снимите видео места ДТП по кругу</div>
+                    <div class="check-item"><div class="check-box"></div> Запишите контакты свидетелей</div>
+                    <div class="check-item"><div class="check-box"></div> НЕ подписывайте пустые бланки</div>
+                </div>
+
+                <div class="flex gap-4" style="flex-wrap: wrap;">
+                    <a href="tel:+77002676097" class="btn btn-primary">Позвонить срочно</a>
+                    <a href="https://wa.me/77002676097" class="btn btn-outline">Написать в WhatsApp</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content for Segment B: Low Payout -->
+        <div id="content-B" class="segment-content" style="display: none;">
+            <div class="big-stat-card">
+                <p>В среднем наши клиенты получают</p>
+                <div class="stat-val">в 1.8 раза больше</div>
+                <p>первоначального расчёта страховой компании</p>
+            </div>
+            
+            <h2 class="text-center" style="margin-bottom: 32px;">Почему вам насчитали мало?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="f-icon">📉</span>
+                    <h4>Износ деталей</h4>
+                    <p>Считают максимальный износ (до 50%), даже если деталь была новой.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="f-icon">🛠</span>
+                    <h4>Ремонт вместо замены</h4>
+                    <p>Ставят "ремонт" детали, которую завод-изготовитель требует менять.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="f-icon">👁</span>
+                    <h4>Скрытые дефекты</h4>
+                    <p>Осмотр был поверхностным. Внутри бампера повреждений на 200к тенге.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content for Segment C: Refusal -->
+        <div id="content-C" class="segment-content" style="display: none;">
+            <div class="big-stat-card" style="border-color: var(--danger);">
+                <p>Вам отказали? Знайте:</p>
+                <div class="stat-val" style="color: var(--danger);">70% отказов незаконны</div>
+                <p>Мы успешно оспариваем 8 из 10 отказов в досудебном порядке.</p>
+            </div>
+
+            <div class="text-center" style="max-width: 800px; margin: 0 auto 40px;">
+                <h2 style="margin-bottom: 16px;">"Не является страховым случаем"</h2>
+                <p>Это стандартная отговорка. Страховые часто неправильно трактуют пункты договора, ссылаются на "несвоевременное уведомление" или "нарушение ПДД". В 90% случаев это можно разбить в суде.</p>
+            </div>
+        </div>
+
+        <!-- COMMON BLOCKS (Visible for all segments in State 2) -->
+        
+        <!-- Case Study -->
+        <h2 class="text-center" style="margin: 60px 0 32px;">Как это работает (Кейс)</h2>
+        <div class="case-card">
+            <div class="case-info">
+                <h3 style="margin-bottom: 8px;">Toyota Camry 70, Алматы</h3>
+                <p style="color: var(--text-sec); margin-bottom: 24px;">Клиент Дмитрий. Удар сзади. Страховая насчитала замену бампера и покраску крышки багажника.</p>
+                <p><strong>Что сделали мы:</strong> Провели независимую экспертизу, нашли скрытые повреждения усилителя и пола багажника.</p>
+                <div style="margin-top: 20px; font-size: 14px; color: var(--text-sec);">Срок: 3 недели • Без суда</div>
+            </div>
+            <div class="case-viz">
+                <div class="bar-chart">
+                    <div style="display:flex; justify-content:space-between; font-size: 14px; margin-bottom: -8px;"><span>Страховая давала:</span></div>
+                    <div class="bar bar-bad">780 000 ₸</div>
+                    <div style="display:flex; justify-content:space-between; font-size: 14px; margin-bottom: -8px; margin-top: 8px;"><span>Мы взыскали:</span></div>
+                    <div class="bar bar-good">1 340 000 ₸</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing & Guarantee -->
+        <div class="pricing-section">
+            <h2 class="text-center" style="margin-bottom: 40px;">Прозрачные условия</h2>
+            <div class="features-grid">
+                <div class="pricing-card">
+                    <h4>Экспертиза</h4>
+                    <div class="pricing-val">50-70 тыс. ₸</div>
+                    <p>Независимая оценка ущерба сертифицированным экспертом.</p>
+                </div>
+                <div class="pricing-card" style="background: #eff6ff; border-color: var(--accent);">
+                    <h4>Предоплата</h4>
+                    <div class="pricing-val text-accent">5-10%</div>
+                    <p>От ожидаемой суммы взыскания. Только если беремся за дело.</p>
+                </div>
+                <div class="pricing-card">
+                    <h4>Финал</h4>
+                    <div class="pricing-val text-success">0 ₸</div>
+                    <p>Все ваши расходы (экспертиза, юрист) возмещает страховая сверх выплаты.</p>
+                </div>
+            </div>
+
+            <div class="guarantee-box">
+                <h3 style="color: var(--success); margin-bottom: 8px;">🛡️ 100% Гарантия возврата</h3>
+                <p>Если мы взялись за дело, но не смогли взыскать деньги — мы вернем вам сумму предоплаты.</p>
+            </div>
+        </div>
+
+        <!-- LEAD FORM -->
+        <div id="form-section" class="lead-form-section">
+            <div class="container" style="padding: 0 40px;">
+                <h2 style="margin-bottom: 16px;">Узнайте перспективу вашего дела</h2>
+                <p style="margin-bottom: 40px; color: #cbd5e1;">Оставьте заявку. Мы перезвоним через 15 минут, зададим 3 вопроса и скажем, сколько реально можно получить.</p>
+                
+                <div class="form-grid">
+                    <form id="leadForm" onsubmit="handleFormSubmit(event)">
+                        <div class="form-inputs">
+                            <div class="input-group">
+                                <label>Ваш автомобиль</label>
+                                <input type="text" class="input-field" placeholder="Например: Kia Rio 2021">
+                            </div>
+                            <div class="input-group">
+                                <label>Ситуация</label>
+                                <div class="radio-group" id="form-situation-options">
+                                    <div class="radio-btn active">ДТП только что</div>
+                                    <div class="radio-btn">Мало насчитали</div>
+                                    <div class="radio-btn">Отказ</div>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Ваш телефон</label>
+                                <input type="tel" class="input-field" placeholder="+7 (___) ___ __ __">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Получить консультацию →</button>
+                            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 12px;">Нажимая кнопку, вы соглашаетесь с политикой обработки данных</p>
+                        </div>
+                    </form>
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                        <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 16px;">
+                            <h4 style="margin-bottom: 12px;">Почему стоит оставить заявку?</h4>
+                            <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+                                <li>✅ Это бесплатно и ни к чему не обязывает</li>
+                                <li>✅ Разговор займет не более 3 минут</li>
+                                <li>✅ Вы получите честный прогноз по сумме</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <div class="logo" style="color: white;">Lex<span>Solution</span></div>
+                    <p class="footer-tagline">Юридический партнер для автовладельцев в Казахстане</p>
+                    <div class="footer-socials">
+                        <a href="https://wa.me/77002676097" class="social-link" aria-label="WhatsApp">
+                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.304-5.235c0-5.443 4.429-9.861 9.856-9.861 2.628 0 5.105 1.025 6.965 2.885 1.86 1.86 2.883 4.341 2.883 6.975 0 5.445-4.426 9.868-9.851 9.868"/></svg>
+                        </a>
+                        <a href="https://www.instagram.com/lex_solution_group" class="social-link" aria-label="Instagram" target="_blank">
+                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-contacts">
+                    <h4>Контакты</h4>
+                    <a href="tel:+77002676097" class="footer-contact-item">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                        +7 700 267 60 97
+                    </a>
+                    <a href="mailto:lexsolutiongroup@gmail.com" class="footer-contact-item">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        lexsolutiongroup@gmail.com
+                    </a>
+                    <div class="footer-contact-item">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Пн-Пт: 9:00 - 18:00
+                    </div>
+                </div>
+
+                <div class="footer-address">
+                    <h4>Офис</h4>
+                    <div class="footer-contact-item">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>г. Алматы, ул. Шаляпина, 7а, 2 этаж</span>
+                    </div>
+                    <div class="footer-company-info">
+                        <p><strong>ТОО "LEX SOLUTION GROUP"</strong></p>
+                        <p>БИН: 250940020285</p>
+                    </div>
+                </div>
+
+                <div class="footer-cta">
+                    <h4>Нужна помощь?</h4>
+                    <p>Получите бесплатную консультацию прямо сейчас</p>
+                    <a href="#form-section" class="btn btn-primary" style="width: 100%;">Бесплатная консультация</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">
+                    <p>&copy; 2026 LexSolution. Все права защищены.</p>
+                    <a href="privacy.html" class="footer-privacy-link">Политика конфиденциальности</a>
+                </div>
+                <div class="footer-disclaimer">
+                    <p>Любая информация, представленная на данном сайте, носит исключительно информационный характер и ни при каких условиях не является публичной офертой. Отправляя сведения через любую электронную форму на этом сайте, вы даете согласие на обработку ваших персональных данных.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MOBILE STICKY FOOTER -->
+    <div class="footer-sticky">
+        <a href="https://wa.me/77002676097" class="mobile-btn" style="background: #25D366; color: white;">WhatsApp</a>
+        <a href="tel:+77002676097" class="mobile-btn" style="background: var(--action); color: white;">Позвонить</a>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        function selectSituation(type, element) {
+            // 1. Visual Selection Logic
+            document.querySelectorAll('.card-select').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            // 2. Hide State 1 Extras (Emergency Block) to clean up view
+            document.getElementById('state-1-extras').style.display = 'none';
+
+            // 3. Reveal State 2 Container
+            const container = document.getElementById('dynamic-content');
+            container.classList.add('visible');
+
+            // 4. Switch Content based on Type (A, B, C)
+            document.querySelectorAll('.segment-content').forEach(el => el.style.display = 'none');
+            document.getElementById('content-' + type).style.display = 'block';
+
+            // 5. Update Form Radio Buttons visually based on selection
+            const radioBtns = document.querySelectorAll('.radio-btn');
+            radioBtns.forEach(btn => btn.classList.remove('active'));
+            if(type === 'A') radioBtns[0].classList.add('active');
+            if(type === 'B') radioBtns[1].classList.add('active');
+            if(type === 'C') radioBtns[2].classList.add('active');
+
+            // 6. Smooth Scroll to content
+            setTimeout(() => {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // Form Radio Button Logic
+        const formRadios = document.querySelectorAll('.radio-btn');
+        formRadios.forEach(btn => {
+            btn.addEventListener('click', function() {
+                formRadios.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Form Submit Handler
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            // Here you would normally send data to server
+            // For now, redirect to thank you page
+            window.location.href = 'thank.html';
+        }
+    </script>
+</body>
+</html>
