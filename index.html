@@ -1015,21 +1015,21 @@
                         <div class="form-inputs">
                             <div class="input-group">
                                 <label>Ваш автомобиль</label>
-                                <input type="text" class="input-field" placeholder="Например: Kia Rio 2021">
+                                <input type="text" id="form-car" class="input-field" placeholder="Например: Kia Rio 2021">
                             </div>
                             <div class="input-group">
                                 <label>Ситуация</label>
                                 <div class="radio-group" id="form-situation-options">
-                                    <div class="radio-btn active">ДТП только что</div>
-                                    <div class="radio-btn">Мало насчитали</div>
-                                    <div class="radio-btn">Отказ</div>
+                                    <div class="radio-btn active" data-value="ДТП только что">ДТП только что</div>
+                                    <div class="radio-btn" data-value="Мало насчитали">Мало насчитали</div>
+                                    <div class="radio-btn" data-value="Отказ">Отказ</div>
                                 </div>
                             </div>
                             <div class="input-group">
                                 <label>Ваш телефон</label>
-                                <input type="tel" class="input-field" placeholder="+7 (___) ___ __ __">
+                                <input type="tel" id="form-phone" class="input-field" placeholder="+7 (___) ___ __ __" required>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Получить консультацию →</button>
+                            <button type="submit" id="form-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Получить консультацию →</button>
                             <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 12px;">Нажимая кнопку, вы соглашаетесь с политикой обработки данных</p>
                         </div>
                     </form>
@@ -1159,13 +1159,77 @@
             });
         });
 
+        // Получение UTM-меток из URL
+        function getUTMParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                utm_source: params.get('utm_source') || '',
+                utm_medium: params.get('utm_medium') || '',
+                utm_campaign: params.get('utm_campaign') || '',
+                utm_term: params.get('utm_term') || '',
+                utm_content: params.get('utm_content') || ''
+            };
+        }
+
         // Form Submit Handler
-        function handleFormSubmit(event) {
+        async function handleFormSubmit(event) {
             event.preventDefault();
 
-            // Here you would normally send data to server
-            // For now, redirect to thank you page
-            window.location.href = 'thank.html';
+            const submitBtn = document.getElementById('form-submit-btn');
+            const originalText = submitBtn.textContent;
+
+            // Получаем данные формы
+            const car = document.getElementById('form-car').value.trim();
+            const phone = document.getElementById('form-phone').value.trim();
+            const activeSituation = document.querySelector('.radio-btn.active');
+            const situation = activeSituation ? activeSituation.dataset.value : 'Не указана';
+
+            // Валидация
+            if (!phone) {
+                alert('Пожалуйста, введите номер телефона');
+                return;
+            }
+
+            // Блокируем кнопку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+
+            // Собираем данные
+            const utmParams = getUTMParams();
+            const formData = {
+                car: car,
+                phone: phone,
+                situation: situation,
+                ...utmParams,
+                page_url: window.location.href,
+                referrer: document.referrer || 'Прямой заход'
+            };
+
+            try {
+                const response = await fetch('/api/send-telegram', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Успешная отправка - перенаправляем на страницу благодарности
+                    window.location.href = 'thank.html';
+                } else {
+                    alert('Произошла ошибка при отправке. Попробуйте позвонить нам напрямую.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Произошла ошибка при отправке. Попробуйте позвонить нам напрямую.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
         }
     </script>
 </body>
