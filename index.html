@@ -715,9 +715,42 @@
             color: #64748b;
         }
 
-        /* Hero CTA Block — mobile-first, above the fold */
+        /* Hero CTA Block */
         .hero-cta {
-            display: none;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .hero-cta-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .hero-cta-btn {
+            display: inline-block;
+            padding: 18px 48px;
+            background: var(--action);
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+            transition: all 0.2s ease;
+            animation: cta-pulse 2.5s infinite;
+        }
+        .hero-cta-btn:hover {
+            background: var(--action-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        }
+        @keyframes cta-pulse {
+            0% { box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); }
+            50% { box-shadow: 0 4px 20px rgba(249, 115, 22, 0.55); }
+            100% { box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); }
         }
 
         @media (max-width: 960px) {
@@ -743,43 +776,22 @@
             .hero-subtitle br { display: none; }
             .hero { padding: 30px 0 24px; }
 
-            /* CTA Block */
+            /* CTA Block mobile overrides */
             .hero-cta {
-                display: block;
-                text-align: center;
                 margin-bottom: 28px;
                 padding: 0 10px;
             }
             .hero-cta-text {
                 font-size: 15px;
-                font-weight: 600;
-                color: var(--text-main);
-                margin-bottom: 16px;
-                line-height: 1.4;
             }
             .hero-cta-btn {
                 display: block;
                 width: 100%;
                 padding: 16px 24px;
-                background: var(--action);
-                color: white;
                 font-size: 16px;
-                font-weight: 700;
-                border: none;
-                border-radius: 12px;
-                cursor: pointer;
-                text-decoration: none;
-                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
-                transition: all 0.2s ease;
-                animation: cta-pulse 2.5s infinite;
             }
             .hero-cta-btn:active {
                 transform: scale(0.97);
-            }
-            @keyframes cta-pulse {
-                0% { box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); }
-                50% { box-shadow: 0 4px 20px rgba(249, 115, 22, 0.55); }
-                100% { box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); }
             }
 
             .benefits-list {
