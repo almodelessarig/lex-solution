@@ -715,26 +715,73 @@
             color: #64748b;
         }
 
+        /* Hero CTA Block — mobile-first, above the fold */
+        .hero-cta {
+            display: none;
+        }
+
         @media (max-width: 960px) {
             .hero-title {
-                font-size: 26px;
-                line-height: 1.25;
+                font-size: 22px;
+                line-height: 1.3;
                 text-align: center;
                 word-wrap: break-word;
                 hyphens: none;
+                margin-bottom: 12px;
             }
             .hero-title br { display: none; }
             .hero-title .title-last {
                 display: block;
             }
             .hero-subtitle {
-                font-size: 15px;
+                font-size: 14px;
                 line-height: 1.5;
                 text-align: center;
                 padding: 0 10px;
+                margin-bottom: 20px;
             }
             .hero-subtitle br { display: none; }
-            .hero { padding: 40px 0 30px; }
+            .hero { padding: 30px 0 24px; }
+
+            /* CTA Block */
+            .hero-cta {
+                display: block;
+                text-align: center;
+                margin-bottom: 28px;
+                padding: 0 10px;
+            }
+            .hero-cta-text {
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--text-main);
+                margin-bottom: 16px;
+                line-height: 1.4;
+            }
+            .hero-cta-btn {
+                display: block;
+                width: 100%;
+                padding: 16px 24px;
+                background: var(--action);
+                color: white;
+                font-size: 16px;
+                font-weight: 700;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                text-decoration: none;
+                box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+                transition: all 0.2s ease;
+                animation: cta-pulse 2.5s infinite;
+            }
+            .hero-cta-btn:active {
+                transform: scale(0.97);
+            }
+            @keyframes cta-pulse {
+                0% { box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); }
+                50% { box-shadow: 0 4px 20px rgba(249, 115, 22, 0.55); }
+                100% { box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); }
+            }
+
             .benefits-list {
                 flex-direction: column;
                 gap: 16px;
@@ -833,6 +880,12 @@
                 Отремонтируйте машину без доплаты из кармана <span class="highlight">за счёт справедливой выплаты</span> <span class="title-last">от страховой</span>
             </h1>
             <p class="hero-subtitle">Добьёмся, чтобы страховая заплатила реальную стоимость ремонта.<br>В среднем наши клиенты получают на <strong>300 000 – 1 500 000 ₸</strong> больше.</p>
+        </div>
+
+        <!-- Mobile CTA — above the fold -->
+        <div class="hero-cta">
+            <p class="hero-cta-text">Рассчитайте стоимость реальной выплаты от страховой</p>
+            <a href="#form-section" class="hero-cta-btn" onclick="scrollToForm(event)">Узнать стоимость выплаты →</a>
         </div>
 
         <div class="benefits-list">
@@ -1148,6 +1201,21 @@
             setTimeout(() => {
                 container.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
+        }
+
+        // Scroll to form (mobile CTA button)
+        function scrollToForm(event) {
+            event.preventDefault();
+            const container = document.getElementById('dynamic-content');
+            // If content is hidden, reveal it with default segment B (most common)
+            if (!container.classList.contains('visible')) {
+                const defaultCard = document.querySelectorAll('.card-select')[1]; // "Мало насчитали"
+                selectSituation('B', defaultCard);
+            }
+            // Scroll to form
+            setTimeout(() => {
+                document.getElementById('form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 150);
         }
 
         // Form Radio Button Logic
